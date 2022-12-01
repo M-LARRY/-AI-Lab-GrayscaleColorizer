@@ -1,19 +1,41 @@
 # importa le librerie necessarie
 import torch
 import numpy as np
-from torchvision import io
+from torchvision import io, datasets, transforms
 from torchvision.transforms import functional as TF
+
 import utils
+from residual_encoder import ResidualEncoder
+
+# rileva hardware
+# export HSA_OVERRIDE_GFX_VERSION=10.3.0  <---- Fix per la mia GPU
+if torch.cuda.is_available():
+    device = torch.device('cuda')
+else:
+    device = torch.device('cpu')
+    
+print('Versione di PyTorch:', torch.__version__, ' Device:', device)
 
 # set variabili
 image_size = (224, 224)
 
 # prepara il dataset
 
+# dichiara trasformazione
+transform = transforms.Compose([transforms.ToTensor(),
+                              transforms.Normalize((0.5,), (0.5,)),
+                              ])
+
+# dati training
+trainset = datasets.ImageNet('../data', split='train', target_transform=transform) # TODO
+train_loader = DataLoader(trainset, batch_size=10, shuffle=True)
+trainset
+
+
 # ridimensiona immagine con img = transforms.functional.resize(img, (244, 244))
 # estrai i canali Y e UV ( usa YUVsplit() )
 
-#
+# scegli optimizer e criterion per la loss
 
 # funzione train
 
