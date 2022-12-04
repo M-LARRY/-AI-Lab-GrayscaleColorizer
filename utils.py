@@ -83,7 +83,7 @@ def yuv2gscale(yuv):
     
     return TF.convert_image_dtype(gscale, torch.uint8)
 
-# ritorna una copia di Y in formato RGB
+# ritorna una copia di Y in formato RGB (nel modo meno efficiente possibile, lazy)
 def Y2RGB(Y):
     ch, h, w = Y.size()
     return YUV2RGB(YUVjoin(Y, torch.zeros(2, h, w, dtype=torch.float32)))
