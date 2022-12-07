@@ -35,7 +35,7 @@ def YUV2RGB(YUV):
     
     for i in range(h):
         for j in range(w):
-            Y = YUV[0][i][j] + 1    # perchè funziona? non lo so...
+            Y = YUV[0][i][j] + 1    # perchè funziona? non lo so... 
             U = YUV[1][i][j]
             V = YUV[2][i][j]
 

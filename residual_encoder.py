@@ -24,11 +24,13 @@ class Vgg16(torch.nn.Module):
             x = model(x)
             if ii in {0,3,8,15,22}:     # specifica qui i layer di cui interessa l'output
                 results.append(x)
+        return results
 
 # modello del Residual Encoder 
 # https://tinyclouds.org/colorize
 class ResidualEncoder(nn.Module):
-    def __init__(self,input_size = img_h * img_w, output_size = img_h * img_w * 3):
+    def __init__(self, input_size = img_h * img_w, output_size = img_h * img_w * 3):
+        super().__init__()
         # layer 4 (batchNorm - 1x1Conv)
         self.bnorm_4 = nn.BatchNorm1d(512)
         self.conv_4 = nn.Conv2d(512, 256, 1)
@@ -36,33 +38,45 @@ class ResidualEncoder(nn.Module):
         self.bnorm_3 = nn.BatchNorm1d(256)
         self.conv_3 = nn.Conv2d(256, 128, 3)
         # layer 2
-
+        self.bnorm_2 = nn.BatchNorm1d(128)
+        self.conv_2 = nn.Conv2d(128, 64, 3)
         # layer 1
-
+        self.bnorm_1 = nn.BatchNorm1d(64)
+        self.conv_1 = nn.Conv2d(64, 3, 3)
         # layer 0
-
-        super().__init__()
+        self.bnorm_0 = nn.BatchNorm1d(3)
+        self.conv_0 = nn.Conv2d(3, 3, 3)
+        # output
+        self.out_conv = nn.Conv2d(3, 2, 3)
 
     def forward(self, x):
         # forward in vgg-16
         vgg_res = Vgg16().forward(x)
         x = vgg_res[0]
         # layer 4
-        # batch norm, 1x1 conv 
         x = self.bnorm_4(x)
         x = self.conv_4(x)
         # layer 3
-        # upscale, batch norm, add, 3x3 conv
         x = resize(x, (56, 56))
             # somma di tensori x e self.bnorm_3(vgg_res[1])
         x = self.conv_3(x)
         # layer 2
+        x = resize(x, (112, 112))
+            # somma di tensori x e self.bnorm_2(vgg_res[2])
+        x = self.conv_2(x)
         # layer 1
+        x = resize(x, (224, 224))
+            # somma di tensori x e self.bnorm_1(vgg_res[3])
+        x = self.conv_1(x)
         # layer 0
-        return
+            # somma di tensori x e self.bnorm_0(vgg_res[4])
+        x = self.conv_0(x)
+        # output layer
+        x = self.out_conv(x)
+        return x
 
 # CODE REVIEW
 # 1. Quali layer intermedi scegliere da VGG-16: prima o dopo RELU?
 # 2. Sto usando gli argomenti corretti per i layer del modello?
-# 3. resize funziona per tensori di profondità maggiore di 3?
+# 3. resize funziona per tensori di profondità maggiore di 3? (dalla documentazione sembra di sì)
 # 4. Da riga 4; Credo che questo import non serva 

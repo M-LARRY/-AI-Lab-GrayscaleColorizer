@@ -1,7 +1,7 @@
 # importa le librerie necessarie
 import torch
 import numpy as np
-from torchvision import io, datasets, transforms
+from torchvision import io, datasets, transforms, models
 from torchvision.transforms import functional as TF
 
 import utils
@@ -18,22 +18,46 @@ print('Versione di PyTorch:', torch.__version__, ' Device:', device)
 
 # set variabili
 image_size = (224, 224)
+model_of_choice = 'resnet'  # 'ResEnc' o 'resnet'
 
 # prepara il dataset
 
 # dichiara trasformazione
 transform = transforms.Compose([transforms.ToTensor(),
-                              transforms.Normalize((0.5,), (0.5,)),
+                                transforms.Normalize((0.5,), (0.5,)),
+                                transforms.Resize(image_size),
+                                transforms.Lambda(utils.RGB2YUV),
                               ])
 
 # dati training
-trainset = datasets.ImageNet('../data', split='train', target_transform=transform) # TODO
+
+trainset = datasets.SUN397("dataset", download=False, transform=transform)
 train_loader = DataLoader(trainset, batch_size=10, shuffle=True)
 trainset
 
 
-# ridimensiona immagine con img = transforms.functional.resize(img, (244, 244))
+# dati validation
+'''
+validationset = datasets.SUN397("dataset", download=False, transform=transform)
+validation_loader = DataLoader(validationset, batch_size=10, shuffle=True)
+validationset
+'''
+
+# dati test
+'''
+testset = datasets.SUN397("dataset", download=False, transform=transform)
+test_loader = DataLoader(testset, batch_size=10, shuffle=True)
+testset
+'''
+
+# iteratore iter(train_loader)
+
+
 # estrai i canali Y e UV ( usa YUVsplit() )
+
+# scelta del modello
+if (model_of_choice == 'ResEnc'): model = None #ResidualEncoder()
+else: model = models.resnet50(weights='DEFAULT', progress=True)
 
 # scegli optimizer e criterion per la loss
 
@@ -44,6 +68,8 @@ trainset
 # training process
 
 # test code here
+
+'''
 img = io.read_image('images/macchu.jpg')
 img = TF.resize(img, image_size)
 
@@ -57,3 +83,4 @@ print("Immagine YUV ricomposta!")
 
 io.write_jpeg(utils.Y2RGB(y), "images/grayscale.jpeg")
 io.write_jpeg(utils.YUV2RGB(out), "images/output.jpeg")
+'''
