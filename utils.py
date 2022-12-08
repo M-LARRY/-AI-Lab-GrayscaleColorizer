@@ -10,14 +10,13 @@ def RGB2YUV(RGB):
     #       U ha range [-0.436, 0.436]
     #       V ha range [-0.615, 0.615]
     ch, h, w = RGB.size()
-    tmp = TF.convert_image_dtype(RGB, torch.float32)
     YUV = torch.zeros(3, h, w, dtype=torch.float32)
     
     for i in range(h):
         for j in range(w):
-            R = tmp[0][i][j]
-            G = tmp[1][i][j]
-            B = tmp[2][i][j]
+            R = RGB[0][i][j]
+            G = RGB[1][i][j]
+            B = RGB[2][i][j]
 
             Y = (0.299*R) + (0.587*G) + (0.114*B)
 
@@ -35,7 +34,7 @@ def YUV2RGB(YUV):
     
     for i in range(h):
         for j in range(w):
-            Y = YUV[0][i][j] + 1    # perchè funziona? non lo so... 
+            Y = YUV[0][i][j]
             U = YUV[1][i][j]
             V = YUV[2][i][j]
 
@@ -71,6 +70,12 @@ def YUVjoin(Y, UV):
             YUV[2][i][j] = UV[1][i][j]
 
     return YUV
+
+# ritorna dei nuovi canali UV data un'immagine RGB
+def RGB2UV(RGB):
+    YUV = RGB2YUV(RGB)
+    Y, UV = YUVsplit(YUV)
+    return UV
 
 # ritorna una copia di YUV in scala di grigi in formato RGB (funzione dalla dubbia utitlità)
 def yuv2gscale(yuv):
