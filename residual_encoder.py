@@ -20,14 +20,10 @@ else:
 class Vgg16(nn.Module):
     def __init__(self):
         super(Vgg16, self).__init__()
-        # converti gray input da 1 a 3 canali
-        self.conv = nn.Conv2d(1, 3, 1)
         features = list(vgg16(weights=VGG16_Weights.DEFAULT).features)[:23]
         self.features = nn.ModuleList(features).eval() 
         
     def forward(self, x):
-        # converti gray input da 1 a 3 canali
-        x = self.conv(x)
         results = []
         for ii,model in enumerate(self.features):
             x = model(x)
@@ -40,6 +36,8 @@ class Vgg16(nn.Module):
 class ResidualEncoder(nn.Module):
     def __init__(self, input_size = img_h * img_w, output_size = img_h * img_w * 3):
         super().__init__()
+        # input
+        self.in_conv = nn.Conv2d(1, 3, 1)
         # layer 4 (batchNorm - 1x1Conv)
         self.bnorm_4 = nn.BatchNorm2d(512)
         self.conv_4 = nn.Conv2d(512, 256, 1)
@@ -59,16 +57,18 @@ class ResidualEncoder(nn.Module):
         self.out_conv = nn.Conv2d(3, 2, 3)
 
     def forward(self, x):
+        # aumenta i canali di gray input
+        x = self.in_conv(x)
         # forward in vgg-16
         vgg = Vgg16().to(device)
         vgg_res = vgg.forward(x)
-        x = vgg_res[0]
         # layer 4
+        x = vgg_res[4]
         x = self.bnorm_4(x)
         x = self.conv_4(x)
         # layer 3
         x = resize(x, (56, 56))
-        torch.add(x, self.bnorm_3(vgg_res[1]), out = x)
+        torch.add(x, self.bnorm_3(vgg_res[3]), out = x)     # attualmente l'esecuzione termina qui
         x = self.conv_3(x)
         # layer 2
         x = resize(x, (112, 112))
@@ -76,10 +76,10 @@ class ResidualEncoder(nn.Module):
         x = self.conv_2(x)
         # layer 1
         x = resize(x, (224, 224))
-        torch.add(x, self.bnorm_1(vgg_res[3]), out = x)
+        torch.add(x, self.bnorm_1(vgg_res[1]), out = x)
         x = self.conv_1(x)
         # layer 0
-        torch.add(x, self.bnorm_0(vgg_res[4]), out = x)
+        torch.add(x, self.bnorm_0(vgg_res[0]), out = x)
         x = self.conv_0(x)
         # output layer
         x = self.out_conv(x)

@@ -92,3 +92,16 @@ def yuv2gscale(yuv):
 def Y2RGB(Y):
     ch, h, w = Y.size()
     return YUV2RGB(YUVjoin(Y, torch.zeros(2, h, w, dtype=torch.float32)))
+
+# ritorna un tensore di canali Y e un tensore di canali UV a partire da una batch di immagini YUV
+def batchYUVsplit(batch_YUV):
+    size, ch, h, w = batch_YUV.size()
+    Y_list = []
+    UV_list = []
+    for batch_idx in range(0, size):
+        Y, UV = YUVsplit(batch_YUV[batch_idx])
+        Y_list.append(Y)
+        UV_list.append(UV)
+    batch_Y = torch.stack(Y_list, 0)
+    batch_UV = torch.stack(UV_list, 0)
+    return batch_Y, batch_UV

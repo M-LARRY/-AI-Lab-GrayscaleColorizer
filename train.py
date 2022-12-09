@@ -25,16 +25,15 @@ loss_func_of_choice = 'MSE'  # 'BUVL' o 'MSE'
 # prepara il dataset
 # dichiara trasformazione
 transform = transforms.Compose([transforms.ToTensor(),
-                                #transforms.Normalize((0.5,), (0.5,)),   # crea artefatti sull'immagine
                                 transforms.Resize(image_size),
                                 transforms.Lambda(utils.RGB2YUV),
+                                transforms.Normalize((0.5,), (0.5,)),   # crea artefatti sull'immagine
                               ])
 
 print('Carico dataset...')
 # dati training
 trainset = datasets.SUN397("../data", download=False, transform=transform)
-train_loader = DataLoader(trainset, batch_size=1, shuffle=True)
-#print(trainset)
+train_loader = DataLoader(trainset, batch_size=3, shuffle=True)
 
 # dati validation
 validationset = datasets.SUN397("../data", download=False, transform=transform)
@@ -44,7 +43,7 @@ validation_loader = DataLoader(validationset, batch_size=10, shuffle=True)
 testset = datasets.SUN397("../data", download=False, transform=transform)
 test_loader = DataLoader(testset, batch_size=10, shuffle=True)
 
-print('dataset caricato!')
+print('Fatto!')
 
 # scelta del modello
 if (model_of_choice == 'ResEnc'): model = ResidualEncoder()
@@ -151,7 +150,6 @@ print("Immagine YUV ricomposta!")
 
 io.write_jpeg(utils.Y2RGB(y), "images/grayscale.jpeg")
 io.write_jpeg(utils.YUV2RGB(out), "images/output.jpeg")
-'''
 
 print('inizio training...')
 epochs = 10
@@ -160,3 +158,12 @@ lossv, accv = [], []
 for epoch in range(1, epochs + 1):
     train(epoch)
     validate(lossv, accv)
+'''
+# provo un forward
+for batch_idx, (data, labels) in enumerate(train_loader):
+    print('Batch ',batch_idx,':')
+    print('data:', data.shape)
+    # ottieni da data inferred_UV e target_UV
+    Y, target_UV = utils.batchYUVsplit(data)
+    Y = Y.to(device)
+    inferred_UV = model(Y)
