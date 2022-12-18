@@ -26,7 +26,7 @@ def RGB2YUV(RGB):
 
     return YUV
 
-# ritorna una copia dell'immagine YUV convertita in RGB
+# ritorna una copia dell'immagine YUV convertita in RGB ATTENZIONE PROBABILE ERRORE DI SEGMENTAZIONE QUI!!!
 def YUV2RGB(YUV):
     # nota: R,G,B hanno range [0, 255]
     ch, h, w = YUV.size()
@@ -34,7 +34,7 @@ def YUV2RGB(YUV):
     
     for i in range(h):
         for j in range(w):
-            Y = YUV[0][i][j]
+            Y = YUV[0][i][j] + 1
             U = YUV[1][i][j]
             V = YUV[2][i][j]
 
@@ -105,3 +105,13 @@ def batchYUVsplit(batch_YUV):
     batch_Y = torch.stack(Y_list, 0)
     batch_UV = torch.stack(UV_list, 0)
     return batch_Y, batch_UV
+
+# ritorna un tensore batch contenente l'unione dei canali Y con i rispettivi UV
+def batchYUVjoin(batch_Y, batch_UV):
+    size, ch, h, w = batch_Y.size()
+    YUV_list = []
+    for batch_idx in range(0, size):
+        YUV = YUVjoin(batch_Y[batch_idx], batch_UV[batch_idx])
+        YUV_list.append(YUV)
+    batch_YUV = torch.stack(YUV_list, 0)
+    return batch_YUV
