@@ -1,3 +1,7 @@
+# THIS LIBRARY HAS NOT BEEN FULLY IMPLEMENTED SINCE IT HAS BECOME UNNECESSARY
+# IT WORKS BUT IT CAN STILL BE BUGGY 
+# AND IT WILL BE PROBABLY BE DELETED SOON
+
 import torch
 import numpy as np
 from torchvision import io
@@ -26,7 +30,7 @@ def RGB2YUV(RGB):
 
     return YUV
 
-# ritorna una copia dell'immagine YUV convertita in RGB ATTENZIONE PROBABILE ERRORE DI SEGMENTAZIONE QUI!!!
+# ritorna una copia dell'immagine YUV convertita in RGB 
 def YUV2RGB(YUV):
     # nota: R,G,B hanno range [0, 255]
     ch, h, w = YUV.size()
@@ -40,7 +44,7 @@ def YUV2RGB(YUV):
 
             RGB[0][i][j] = Y + (1.140*V)                 # R 
             RGB[1][i][j] = Y - (0.395*U) - (0.581*V)     # G
-            RGB[2][i][j] = Y + (2.033*U)                 # B
+            RGB[2][i][j] = Y + (2.033*U)                 # B   
     
     return TF.convert_image_dtype(RGB, torch.uint8)
 

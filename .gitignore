@@ -6,3 +6,5 @@ agc.py
 images/grayscale.jpeg
 images/output.jpeg
 res_enc.tar
+train_old.py
+utils.py
